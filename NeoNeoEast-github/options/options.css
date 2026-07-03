@@ -1,0 +1,244 @@
+/* NeoNeoEast 设置页 · Nothing 风格(浅色印刷技术手册) */
+
+:root {
+  --black: #F5F5F5;
+  --surface: #FFFFFF;
+  --surface-raised: #F0F0F0;
+  --border: #E8E8E8;
+  --border-visible: #CCCCCC;
+  --text-disabled: #999999;
+  --text-secondary: #666666;
+  --text-primary: #1A1A1A;
+  --text-display: #000000;
+  --accent: #D71921;
+  --success: #4A9E5C;
+
+  --mono: "Space Mono", ui-monospace, monospace;
+  --grotesk: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --doto: "Doto", var(--mono);
+
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+body {
+  margin: 0;
+  font-family: var(--grotesk);
+  background: var(--black);
+  color: var(--text-primary);
+  background-image: radial-gradient(circle, var(--border-visible) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.opt-root {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+h1 {
+  font-family: var(--mono);
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-display);
+  margin: 0 0 24px;
+}
+
+h1 .brand-accent {
+  color: var(--accent);
+}
+
+/* 卡片标题:■ + Space Mono ALL CAPS */
+h2 {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0 0 10px;
+}
+h2::before {
+  content: '■ ';
+  color: var(--accent);
+}
+
+.opt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.opt-hint {
+  font-family: var(--grotesk);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 6px 0;
+}
+
+code {
+  font-family: var(--mono);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-visible);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+/* ---------- 黑名单 ---------- */
+.bl-add { display: flex; gap: 8px; margin: 12px 0; }
+.bl-add input {
+  flex: 1;
+  font-family: var(--mono);
+  background: var(--surface);
+  border: 1px solid var(--border-visible);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.bl-add input:focus {
+  outline: none;
+  border-color: var(--text-display);
+}
+
+/* 主按钮:黑底白字药丸 */
+.bl-add button,
+.primary {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--text-display);
+  color: #FFFFFF;
+  border: 1px solid var(--text-display);
+  border-radius: 999px;
+  padding: 0 18px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background 120ms var(--ease);
+}
+.bl-add button:hover,
+.primary:hover { background: #333333; }
+.bl-add button:active,
+.primary:active { transition: none; background: var(--accent); border-color: var(--accent); }
+
+.bl-list { list-style: none; padding: 0; margin: 10px 0 0; }
+.bl-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.bl-list button {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+}
+.bl-list button:hover { text-decoration: underline; }
+
+/* ---------- 复习节奏 ---------- */
+.opt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  font-family: var(--grotesk);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.opt-row input[type='number'] {
+  width: 74px;
+  font-family: var(--mono);
+  background: var(--surface);
+  border: 1px solid var(--border-visible);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.opt-row input[type='number']:focus {
+  outline: none;
+  border-color: var(--text-display);
+}
+
+.save-tip {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--success);
+  margin-left: 12px;
+}
+
+#save-review { margin-top: 6px; }
+
+/* ---------- 导出 / 导入 ---------- */
+.export-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+.export-grid button {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-visible);
+  border-radius: 8px;
+  padding: 11px 0;
+  cursor: pointer;
+  transition: background 120ms var(--ease);
+}
+.export-grid button:hover { background: var(--surface-raised); }
+.export-grid button:active { transition: none; background: var(--text-display); color: #FFFFFF; }
+
+.backup-row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+.import-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--surface);
+  border: 1px solid var(--border-visible);
+  border-radius: 999px;
+  padding: 0 18px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 120ms var(--ease);
+}
+.import-label:hover { background: var(--surface-raised); }
+
+/* ---------- 数据概览 ---------- */
+.overview {
+  font-family: var(--grotesk);
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--text-secondary);
+}
+.overview b {
+  font-family: var(--doto);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-display);
+}
