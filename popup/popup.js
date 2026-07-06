@@ -67,35 +67,53 @@ function initReview() {
     empty.style.display = 'none';
     renderReviewCard();
 
-    document.getElementById('btn-remember').addEventListener('click', () => answerReview('remember'));
-    document.getElementById('btn-forget').addEventListener('click', () => answerReview('forget'));
+    document.getElementById('btn-remember').addEventListener('click', () => flipCard('remember'));
+    document.getElementById('btn-forget').addEventListener('click', () => flipCard('forget'));
+    document.getElementById('btn-next').addEventListener('click', () => advanceReview());
   });
 }
 
 function renderReviewCard() {
-  const card = document.getElementById('review-card');
-  const progress = document.getElementById('review-progress');
   const item = gReviewQueue[gReviewIndex];
   if (!item) return;
-  progress.textContent = `${gReviewIndex + 1}/${gReviewTotal}`;
-  const levelName = LEVEL_NAMES[item.level] || '';
-  const posTag = item.pos ? `<span class="rc-pos">${item.pos}</span>` : '';
-  // 例句:日语词条优先用日语例句,英语词条用英语例句,不混入英语
+  document.getElementById('review-progress').textContent = `${gReviewIndex + 1}/${gReviewTotal}`;
+
+  // 正面：英文 + 音标 + 英文例句（不出现中文，按钮除外）
+  document.getElementById('front-en').textContent = item.english || '';
+  document.getElementById('front-phonetic').textContent = item.phonetic ? '/' + item.phonetic + '/' : '';
   const exMain = item.example_ja || item.example_en || '';
+  const frontExEl = document.getElementById('front-ex');
+  frontExEl.textContent = exMain;
+  frontExEl.style.display = exMain ? '' : 'none';
+
+  // 背面：完整注释
+  const levelName = LEVEL_NAMES[item.level] || '';
+  const posTag = item.pos ? ` <span class="rc-pos">${item.pos}</span>` : '';
   const meaningTail = item.meaning_zh && item.meaning_zh !== item.word ? ' · ' + item.meaning_zh : '';
-  card.innerHTML = `
-    <div class="rc-cn">${item.word}${meaningTail}</div>
-    <div class="rc-en">${item.english || ''} ${posTag}<span class="rc-tag">${levelName}</span></div>
-    <div class="rc-phonetic">${item.phonetic ? '/' + item.phonetic + '/' : ''}</div>
-    ${exMain ? `<div class="rc-ex">${exMain}</div>` : ''}
-    ${item.example_zh ? `<div class="rc-ex-zh">${item.example_zh}</div>` : ''}
-  `;
+  document.getElementById('back-cn').textContent = `${item.word}${meaningTail}`;
+  document.getElementById('back-en').innerHTML = `${item.english || ''} ${posTag}<span class="rc-tag">${levelName}</span>`;
+  document.getElementById('back-phonetic').textContent = item.phonetic ? '/' + item.phonetic + '/' : '';
+  const backExEl = document.getElementById('back-ex');
+  backExEl.textContent = exMain;
+  backExEl.style.display = exMain ? '' : 'none';
+  const exZhEl = document.getElementById('back-ex-zh');
+  exZhEl.textContent = item.example_zh || '';
+  exZhEl.style.display = item.example_zh ? '' : 'none';
+
+  // 重置翻转状态
+  document.getElementById('review-card-flip').classList.remove('flipped');
 }
 
-function answerReview(action) {
+function flipCard(action) {
   const item = gReviewQueue[gReviewIndex];
   if (!item) return;
+  // 先记录学习动作
   chrome.runtime.sendMessage({ type: 'REVIEW_ACTION', payload: { word: item.word, action, ts: Date.now() } });
+  // 翻转卡片
+  document.getElementById('review-card-flip').classList.add('flipped');
+}
+
+function advanceReview() {
   gReviewIndex++;
   if (gReviewIndex >= gReviewQueue.length) {
     document.getElementById('review-section').style.display = 'none';

@@ -112,8 +112,9 @@ async function loadSettingsAndKnown() {
         levels: { ...DEFAULT_SETTINGS.levels, ...(data.nneo_settings.levels || {}) } };
     }
     const words = data.nneo_words || {};
-    for (const [w, info] of Object.entries(words)) {
-      if (info && info.known) gKnownWords[w] = true;
+    // 只要单词在 nneo_words 中存在（发生过任何交互：学会了/记录生词），就加入已知集合，不再替换
+    for (const w of Object.keys(words)) {
+      gKnownWords[w] = true;
     }
   } catch (e) {
     console.warn('[NeoNeoEast] 读取设置失败，用默认值', e);
@@ -141,7 +142,7 @@ function isInIgnoredTag(textNode) {
   while (p) {
     const tag = p.tagName.toLowerCase();
     if (['script','style','code','pre','textarea','input','button','select','a'].includes(tag)) return true;
-    if (p.classList && p.classList.contains('nneo-highlight-word')) return true;
+    if (p.classList && (p.classList.contains('nneo-highlight-word') || p.classList.contains('nneo-tooltip'))) return true;
     p = p.parentElement;
   }
   return false;
@@ -294,12 +295,28 @@ function showTooltip(target, word, info) {
     <div class="nneo-tooltip-cn">${word}${info.meaning_zh && info.meaning_zh !== word ? ' · ' + info.meaning_zh : ''}</div>
     ${exampleBlock}
     <div class="nneo-tooltip-buttons">
-      <button class="nneo-tooltip-button nneo-btn-known">✓ 认识了</button>
-      <button class="nneo-tooltip-button nneo-btn-unknown">✗ 还不会</button>
+      <button class="nneo-tooltip-button nneo-btn-known">
+        <svg class="nneo-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11.5l2 2 4-4"/>
+          <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/>
+        </svg>
+        <span>无须学习</span>
+      </button>
+      <button class="nneo-tooltip-button nneo-btn-unknown">
+        <svg class="nneo-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h12v16H4z"/>
+          <path d="M16 8h4v8h-4z"/>
+          <line x1="7" y1="9" x2="13" y2="9"/>
+          <line x1="7" y1="12" x2="13" y2="12"/>
+          <line x1="7" y1="15" x2="10" y2="15"/>
+        </svg>
+        <span>记录生词</span>
+      </button>
     </div>
   `;
 
   document.body.appendChild(tooltipEl);
+
   tooltipEl.addEventListener('mouseenter', () => {
     if (tooltipHideTimer) { clearTimeout(tooltipHideTimer); tooltipHideTimer = null; }
   });
@@ -323,11 +340,10 @@ function showTooltip(target, word, info) {
 
   const send = (action) => {
     chrome.runtime.sendMessage({ type: 'WORD_ACTION', payload: { ...payloadBase, action } });
-    // 标记「认识了」后，本页立即把该词还原为中文，并记入本地已知集合
-    if (action === 'known') {
-      gKnownWords[word] = true;
-      revertWordOnPage(word);
-    }
+    // 无论「学会了」还是「记录生词」，只要发生过交互，就标记为已知，本页及后续页面都不再替换
+    gKnownWords[word] = true;
+    // 两个按钮都立即把该词还原成中文
+    revertWordOnPage(word);
     hideTooltip();
   };
   tooltipEl.querySelector('.nneo-btn-known').addEventListener('click', () => send('known'));

@@ -369,7 +369,7 @@ body {
 .legend-reviewed::before { background: var(--text-disabled); }
 .legend-failed::before { background: var(--accent); }
 
-/* ---------- 复习卡片 ---------- */
+/* ---------- 复习卡片(3D 翻转) ---------- */
 .popup-review {
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -394,7 +394,61 @@ body {
   letter-spacing: 0.03em;
   color: var(--text-secondary);
 }
-.review-card { min-height: 60px; }
+
+/* 翻转卡片容器 */
+.review-card-flip {
+  position: relative;
+  perspective: 1000px;
+  min-height: 200px;
+}
+.review-card-face {
+  min-height: 200px;
+  box-sizing: border-box;
+  transition: transform 0.4s var(--ease);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.review-card-front {
+  /* 正面朝向用户 */
+}
+.review-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: rotateY(180deg);
+}
+.review-card-flip.flipped .review-card-front {
+  transform: rotateY(-180deg);
+}
+.review-card-flip.flipped .review-card-back {
+  transform: rotateY(0deg);
+}
+
+/* 正面内容 */
+.rc-front-en {
+  font-family: var(--grotesk);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-display);
+  margin-bottom: 4px;
+}
+.rc-front-phonetic {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.rc-front-ex {
+  font-family: var(--grotesk);
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+/* 背面内容 */
 .rc-cn {
   font-family: var(--grotesk);
   font-size: 16px;

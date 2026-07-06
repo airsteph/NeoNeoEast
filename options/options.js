@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderBlacklist();
   renderReviewInputs();
   renderOverview();
+  renderCoverage();
 
   document.getElementById('bl-add-btn').addEventListener('click', addBlacklist);
   document.getElementById('bl-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') addBlacklist(); });
@@ -233,4 +234,82 @@ function renderOverview() {
     document.getElementById('overview').innerHTML =
       `累计交互过 <b>${total}</b> 个词：已掌握 <b>${mastered}</b>、在学 <b>${learning}</b>、待复习 <b>${review}</b>。`;
   });
+}
+
+// ---------- 词库例句覆盖率 ----------
+async function renderCoverage() {
+  const container = document.getElementById('coverage');
+  if (!container) return;
+
+  const EN_LEVELS = ['gaokao', 'cet4', 'cet6', 'kaoyan', 'toefl', 'ielts', 'gre'];
+  const JA_LEVELS = ['jlpt_n5', 'jlpt_n4', 'jlpt_n3', 'jlpt_n2', 'jlpt_n1'];
+  const LEVEL_NAMES = {
+    gaokao: '高考', cet4: '四级', cet6: '六级',
+    toefl: '托福', ielts: '雅思', gre: 'GRE', kaoyan: '考研',
+    jlpt_n5: 'N5', jlpt_n4: 'N4', jlpt_n3: 'N3', jlpt_n2: 'N2', jlpt_n1: 'N1'
+  };
+
+  try {
+    const [enRes, jaRes] = await Promise.all([
+      fetch(chrome.runtime.getURL('data/dict-en.json')),
+      fetch(chrome.runtime.getURL('data/dict-ja.json'))
+    ]);
+    const enDict = await enRes.json();
+    const jaDict = await jaRes.json();
+
+    const badges = [];
+
+    // 英语词库：统计 example_en 覆盖率
+    const enByLevel = {};
+    Object.values(enDict).forEach(w => {
+      if (!enByLevel[w.level]) enByLevel[w.level] = { total: 0, withEx: 0 };
+      enByLevel[w.level].total++;
+      if (w.example_en) enByLevel[w.level].withEx++;
+    });
+    EN_LEVELS.forEach(lv => {
+      const d = enByLevel[lv];
+      if (!d) return;
+      const pct = d.total ? Math.round(d.withEx / d.total * 100) : 0;
+      badges.push({ name: LEVEL_NAMES[lv], total: d.total, withEx: d.withEx, pct, lang: 'en' });
+    });
+
+    // 日语词库：统计 example_ja 和 example_zh 覆盖率
+    const jaByLevel = {};
+    Object.values(jaDict).forEach(w => {
+      if (!jaByLevel[w.level]) jaByLevel[w.level] = { total: 0, withEx: 0, withZh: 0 };
+      jaByLevel[w.level].total++;
+      if (w.example_ja) jaByLevel[w.level].withEx++;
+      if (w.example_zh) jaByLevel[w.level].withZh++;
+    });
+    JA_LEVELS.forEach(lv => {
+      const d = jaByLevel[lv];
+      if (!d) return;
+      const pct = d.total ? Math.round(d.withEx / d.total * 100) : 0;
+      const pctZh = d.total ? Math.round(d.withZh / d.total * 100) : 0;
+      badges.push({ name: LEVEL_NAMES[lv], total: d.total, withEx: d.withEx, pct, pctZh, withZh: d.withZh, lang: 'ja' });
+    });
+
+    container.innerHTML = badges.map(r => {
+      const color = r.pct >= 90 ? '#22c55e' : (r.pct >= 30 ? '#f59e0b' : '#ef4444');
+      const label = r.lang === 'en'
+        ? `英语例句 ${r.pct}%`
+        : `日语例句 ${r.pct}% · 中译 ${r.pctZh}%`;
+      return `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:6px;">
+        <span style="min-width:40px;font-weight:600;">${r.name}</span>
+        <span style="min-width:70px;color:rgba(255,255,255,0.5);font-size:13px;">${r.withEx}/${r.total}</span>
+        <span style="flex:1;color:${color};font-size:13px;">${label}</span>
+      </div>`;
+    }).join('');
+
+    const lowCoverage = badges.filter(r => r.pct < 90);
+    if (lowCoverage.length > 0) {
+      const note = document.createElement('p');
+      note.className = 'opt-hint';
+      note.style.marginTop = '8px';
+      note.textContent = '黄色/红色标记的词库例句覆盖率较低，后续版本会持续补充。';
+      container.appendChild(note);
+    }
+  } catch (e) {
+    container.innerHTML = '<p class="opt-hint">词库覆盖率加载失败</p>';
+  }
 }

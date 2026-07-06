@@ -103,7 +103,7 @@ async function handleWordAction(payload) {
     if (w.status !== 'mastered') {
       if (w.history.length <= 1) day.learned += 1; // 只有第一次纳入才算“今天学了一个新词”
       w.status = 'learning';
-      w.nextReview = now + STAGES_DAYS[0] * DAY;
+      w.nextReview = now; // 当天即可进入复习队列，不再等到第二天
     }
   }
 
@@ -182,21 +182,29 @@ async function getReviewBatch() {
 
   const due = Object.values(words)
     .filter(w => w && w.status === 'learning' && now >= (w.nextReview || 0))
-    .sort((a, b) => (a.nextReview || 0) - (b.nextReview || 0)); // 最久到期的先复习
+    .sort((a, b) => {
+      // 优先推送有例句的词，其次按到期时间排序
+      const ae = (a.example_en || a.example_ja) ? 1 : 0;
+      const be = (b.example_en || b.example_ja) ? 1 : 0;
+      if (ae !== be) return be - ae;
+      return (a.nextReview || 0) - (b.nextReview || 0);
+    });
 
   const limit = Math.min(settings.reviewBatchSize, remainingToday);
-  const batch = due.slice(0, limit).map(w => ({
-    word: w.word,
-    english: w.english,
-    phonetic: w.phonetic,
-    pos: w.pos,
-    meaning_zh: w.meaning_zh,
-    example_zh: w.example_zh,
-    example_en: w.example_en,
-    example_ja: w.example_ja,
-    level: w.level,
-    stage: w.stage || 0
-  }));
+  const batch = due.slice(0, limit).map(w => {
+    return {
+      word: w.word,
+      english: w.english,
+      phonetic: w.phonetic,
+      pos: w.pos,
+      meaning_zh: w.meaning_zh,
+      example_zh: w.example_zh,
+      example_en: w.example_en || '',
+      example_ja: w.example_ja,
+      level: w.level,
+      stage: w.stage || 0
+    };
+  });
 
   return { ok: true, batch, dueTotal: due.length, remainingToday, dailyCap: settings.reviewDailyCap };
 }

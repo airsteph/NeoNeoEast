@@ -124,10 +124,20 @@
   color: #1A1A1A;
   padding: 8px 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   transition: background-color 0.12s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .nneo-tooltip-button:hover { background: #F0F0F0; }
 .nneo-tooltip-button:active { transition: none; }
+
+.nneo-btn-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
 
 .nneo-btn-known {
   /* 认识了:黑底白字硬切 */

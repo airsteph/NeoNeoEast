@@ -20,10 +20,26 @@
           <span class="review-title">📖 待复习</span>
           <span class="review-progress" id="review-progress"></span>
         </div>
-        <div class="review-card" id="review-card"></div>
-        <div class="review-buttons">
-          <button class="review-btn review-btn-forget" id="btn-forget">✗ 忘了</button>
-          <button class="review-btn review-btn-remember" id="btn-remember">✓ 记得</button>
+        <div class="review-card-flip" id="review-card-flip">
+          <div class="review-card-face review-card-front" id="review-front">
+            <div class="rc-front-en" id="front-en"></div>
+            <div class="rc-front-phonetic" id="front-phonetic"></div>
+            <div class="rc-front-ex" id="front-ex"></div>
+            <div class="review-buttons review-buttons-front">
+              <button class="review-btn review-btn-forget" id="btn-forget">忘了</button>
+              <button class="review-btn review-btn-remember" id="btn-remember">记得</button>
+            </div>
+          </div>
+          <div class="review-card-face review-card-back" id="review-back">
+            <div class="rc-cn" id="back-cn"></div>
+            <div class="rc-en" id="back-en"></div>
+            <div class="rc-phonetic" id="back-phonetic"></div>
+            <div class="rc-ex" id="back-ex"></div>
+            <div class="rc-ex-zh" id="back-ex-zh"></div>
+            <div class="review-buttons">
+              <button class="review-btn review-btn-next" id="btn-next">下一个</button>
+            </div>
+          </div>
         </div>
       </section>
       <div class="review-empty" id="review-empty" style="display:none;">今天没有待复习的词，去阅读遇到新词吧 🎉</div>
