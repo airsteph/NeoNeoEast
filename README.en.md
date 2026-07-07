@@ -49,6 +49,8 @@ NeoNeoEast/
 
 This extension makes **no network requests and sends no data anywhere**. Dictionaries, example sentences, and translations are bundled locally with the extension. All learning records are stored in the browser's `chrome.storage.local`. Uninstalling removes everything. MIT license.
 
+Some Japanese example sentences are sourced from the [Tatoeba](https://tatoeba.org/) project (CC-BY 2.0). See `data/SOURCES.md` for details.
+
 ## 🛠️ Tech Stack
 
 Vanilla JavaScript / HTML / CSS — zero build step, zero dependencies, zero network calls. Manifest V3, `Intl.Segmenter` for Chinese word segmentation, `chrome.storage.local` for all data persistence.

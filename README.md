@@ -45,6 +45,8 @@ NeoNeoEast/
 
 本扩展**不联网、不发送任何请求**。词库、例句与中译均随扩展本地打包,所有学习记录保存在浏览器的 `chrome.storage.local` 中。卸载即清除。MIT 开源许可。
 
+部分日语例句来自 Tatoeba 项目(CC-BY 2.0),详见 `data/SOURCES.md`。
+
 ## 🛠️ 技术栈
 
 纯原生 JavaScript / HTML / CSS,零构建、零依赖、零联网。Manifest V3 标准,`Intl.Segmenter` 做中文分词,`chrome.storage.local` 存词库与学习数据。
