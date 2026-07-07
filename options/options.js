@@ -294,9 +294,9 @@ async function renderCoverage() {
       const label = r.lang === 'en'
         ? `英语例句 ${r.pct}%`
         : `日语例句 ${r.pct}% · 中译 ${r.pctZh}%`;
-      return `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:6px;">
-        <span style="min-width:40px;font-weight:600;">${r.name}</span>
-        <span style="min-width:70px;color:rgba(255,255,255,0.5);font-size:13px;">${r.withEx}/${r.total}</span>
+      return `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;padding:6px 10px;background:#F0F0F0;border:1px solid #E8E8E8;border-radius:6px;">
+        <span style="min-width:40px;font-weight:600;color:#1A1A1A;">${r.name}</span>
+        <span style="min-width:70px;color:#666666;font-size:13px;">${r.withEx}/${r.total}</span>
         <span style="flex:1;color:${color};font-size:13px;">${label}</span>
       </div>`;
     }).join('');
