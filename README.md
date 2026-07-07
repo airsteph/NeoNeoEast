@@ -51,6 +51,31 @@ NeoNeoEast/
 
 纯原生 JavaScript / HTML / CSS,零构建、零依赖、零联网。Manifest V3 标准,`Intl.Segmenter` 做中文分词,`chrome.storage.local` 存词库与学习数据。
 
+## 📋 更新日志
+
+### v0.5.6（2026-07-07）— 日语词库结构重构
+
+- **词库键名改为日语原词**：`dict-ja.json` 的 key 从「中文替换目标」改为「日语原词」，新增 `replace_from` 字段（数组）存放触发替换的中文词列表。
+- **字段重命名**：`phonetic` → `reading`（假名注音）；新增 `example_source` 字段标注例句来源（`tatoeba` / `template`）；移除 `english` 字段。
+- **例句来源分类**：93 条模板例句标注为 `template`，4,963 条 Tatoeba 例句标注为 `tatoeba`。
+- **释义勘误**：修正 滑る/負ける/済む/折る/光る/散る/貸す 共 7 条 `meaning_zh` 错误。
+- **去重合并**：103 条重复条目已合并，词库从 5,164 条精简至 5,056 条。
+- **向后兼容**：代码中统一使用 `reading || phonetic`、`english || word` 回退读取，已存储的学习记录无需迁移。
+- **受影响文件**：`data/dict-ja.json`、`content-script/content-script.js`、`background/background.js`、`popup/popup.js`、`options/options.js`。
+
+### v0.5.5（2026-07）— 日语例句语料替换
+
+- 用 Tatoeba 语料库（CC-BY 2.0）+ 模板生成替换原有日语例句。
+- 在 `data/SOURCES.md` 中添加 Tatoeba 归属声明。
+
+### v0.5.4（2026-07）— 设置页样式修复
+
+- 修复设置页词库覆盖率徽章在浅色背景下文字不可见的问题。
+
+### v0.5.3（2026-07）— 更名与全离线化
+
+- 更名为「外语学习助手」，移除所有联网请求与 Google Fonts 依赖。
+
 ## 📄 许可证
 
 [MIT](./LICENSE)

@@ -41,6 +41,7 @@ const LEVEL_NAMES = {
 };
 
 let gDict = {};
+let gDictReverse = new Map(); // ja模式反向索引: 中文词 -> {japanese_key, entry}
 let gSettings = DEFAULT_SETTINGS;
 let gKnownWords = {};     // 已掌握的词 { 中文词: true }
 let gSegmenter = null;
@@ -125,12 +126,45 @@ async function loadLocalDict() {
   const url = DICT_URL_BY_LANG[gSettings.targetLang] || DICT_URL_BY_LANG.en;
   const res = await fetch(url);
   if (!res.ok) throw new Error('dict fetch failed: ' + res.status);
-  return await res.json();
+  const dict = await res.json();
+  // ja模式：构建反向索引（中文词 -> {japanese_key, entry}）
+  if (gSettings.targetLang === 'ja') {
+    gDictReverse = new Map();
+    for (const [jaKey, entry] of Object.entries(dict)) {
+      const replaceFrom = entry.replace_from || [];
+      for (const zh of replaceFrom) {
+        if (!gDictReverse.has(zh)) {
+          gDictReverse.set(zh, { japanese_key: jaKey, entry });
+        }
+      }
+    }
+    console.log('[NeoNeoEast] ja反向索引条目数:', gDictReverse.size);
+  }
+  return dict;
+}
+
+// 查词典：en模式直接查gDict[word]；ja模式查反向索引
+function lookupDict(word) {
+  if (gSettings.targetLang === 'ja') {
+    const hit = gDictReverse.get(word);
+    return hit ? hit.entry : null;
+  }
+  return gDict[word] || null;
+}
+
+// 获取替换显示文本：en模式=info.english；ja模式=日语原词(词典key)
+function getDisplayText(word) {
+  if (gSettings.targetLang === 'ja') {
+    const hit = gDictReverse.get(word);
+    return hit ? hit.japanese_key : word;
+  }
+  const info = gDict[word];
+  return info ? (info.english || word) : word;
 }
 
 // 判断一个词是否可用于替换：在词典里 + 层级开启 + 未掌握
 function isReplaceable(word) {
-  const info = gDict[word];
+  const info = lookupDict(word);
   if (!info) return false;
   if (!gSettings.levels[info.level]) return false;   // 层级未勾选
   if (gKnownWords[word]) return false;               // 已掌握，跳过
@@ -211,8 +245,8 @@ function processTextNodes(root) {
         isReplaceable(word) &&
         (wordReplaceCount[word] || 0) < gSettings.maxPerWord
       ) {
-        const info = gDict[word];
-        const span = createHighlightSpan(word, info.english || word);
+        const info = lookupDict(word);
+        const span = createHighlightSpan(word, getDisplayText(word));
         frag.appendChild(span);
         wordReplaceCount[word] = (wordReplaceCount[word] || 0) + 1;
         totalReplaced++;
@@ -244,7 +278,7 @@ function initHover(root) {
     if (!(target instanceof HTMLElement)) return;
     if (!target.classList.contains('nneo-highlight-word')) return;
     const word = target.dataset.word;
-    const info = word && gDict[word];
+    const info = word && lookupDict(word);
     if (!info) return;
     showTooltip(target, word, info);
   });
@@ -290,8 +324,8 @@ function showTooltip(target, word, info) {
     : '';
 
   tooltipEl.innerHTML = `
-    <div class="nneo-tooltip-header">${info.english || ''} ${posTag}<span class="nneo-level-tag">${levelName}</span></div>
-    <div class="nneo-tooltip-phonetic">${info.phonetic ? '/' + info.phonetic + '/' : ''}</div>
+    <div class="nneo-tooltip-header">${getDisplayText(word)} ${posTag}<span class="nneo-level-tag">${levelName}</span></div>
+    <div class="nneo-tooltip-phonetic">${(info.reading || info.phonetic) ? '/' + (info.reading || info.phonetic) + '/' : ''}</div>
     <div class="nneo-tooltip-cn">${word}${info.meaning_zh && info.meaning_zh !== word ? ' · ' + info.meaning_zh : ''}</div>
     ${exampleBlock}
     <div class="nneo-tooltip-buttons">
@@ -331,8 +365,9 @@ function showTooltip(target, word, info) {
   tooltipEl.style.top = `${top + window.scrollY}px`;
   tooltipEl.style.left = `${left + window.scrollX}px`;
 
+  const readingVal = info.reading || info.phonetic || '';
   const payloadBase = {
-    word, english: info.english, phonetic: info.phonetic,
+    word, english: getDisplayText(word), reading: readingVal, phonetic: readingVal,
     pos: info.pos, meaning_zh: info.meaning_zh, example_zh: info.example_zh,
     example_en: info.example_en, example_ja: info.example_ja,
     level: info.level, ts: Date.now()

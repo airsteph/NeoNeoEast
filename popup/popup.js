@@ -80,7 +80,7 @@ function renderReviewCard() {
 
   // 正面：英文 + 音标 + 英文例句（不出现中文，按钮除外）
   document.getElementById('front-en').textContent = item.english || '';
-  document.getElementById('front-phonetic').textContent = item.phonetic ? '/' + item.phonetic + '/' : '';
+  document.getElementById('front-phonetic').textContent = (item.reading || item.phonetic) ? '/' + (item.reading || item.phonetic) + '/' : '';
   const exMain = item.example_ja || item.example_en || '';
   const frontExEl = document.getElementById('front-ex');
   frontExEl.textContent = exMain;
@@ -92,7 +92,7 @@ function renderReviewCard() {
   const meaningTail = item.meaning_zh && item.meaning_zh !== item.word ? ' · ' + item.meaning_zh : '';
   document.getElementById('back-cn').textContent = `${item.word}${meaningTail}`;
   document.getElementById('back-en').innerHTML = `${item.english || ''} ${posTag}<span class="rc-tag">${levelName}</span>`;
-  document.getElementById('back-phonetic').textContent = item.phonetic ? '/' + item.phonetic + '/' : '';
+  document.getElementById('back-phonetic').textContent = (item.reading || item.phonetic) ? '/' + (item.reading || item.phonetic) + '/' : '';
   const backExEl = document.getElementById('back-ex');
   backExEl.textContent = exMain;
   backExEl.style.display = exMain ? '' : 'none';

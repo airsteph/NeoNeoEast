@@ -131,7 +131,7 @@ function exportCsv(kind) {
     const words = data[WORDS_KEY] || {};
     const now = Date.now();
     const zhStatus = { mastered: '已掌握', learning: '在学', review: '待复习' };
-    const rows = [['中文', '英文', '音标', '中文释义', '例句(英)', '例句(中)', '层级', '状态', '复习进度', '下次复习']];
+    const rows = [['中文', '英文', '音标/假名注音', '中文释义', '例句(英)', '例句(中)', '层级', '状态', '复习进度', '下次复习']];
     Object.values(words).forEach((w) => {
       if (!w || typeof w !== 'object') return;
       const st = statusOf(w, now);
@@ -139,7 +139,7 @@ function exportCsv(kind) {
       const next = (w.nextReview && w.nextReview < Number.MAX_SAFE_INTEGER)
         ? new Date(w.nextReview).toLocaleDateString() : '—';
       rows.push([
-        w.word, w.english, w.phonetic, w.meaning_zh,
+        w.word, w.english, (w.reading || w.phonetic || ''), w.meaning_zh,
         w.example_en, w.example_zh, w.level,
         zhStatus[st] || st, `${w.stage || 0}/4`, next
       ]);
