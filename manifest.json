@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NeoNeoEast · 外语学习助手",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "在阅读网页时，轻量替换少量中文词,辅助记忆外语释义与例句。支持英语(高考/四六级/考研/托福/雅思/GRE)与日语(JLPT N5-N1),同一时间学一种;含间隔复习、黑名单、导出/导入。全部词库、例句与中译均离线内置,不联网。",
   "permissions": [
     "storage",
